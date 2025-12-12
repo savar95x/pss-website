@@ -1,471 +1,630 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Atom, 
-  Calendar, 
-  BookOpen, 
-  Users, 
-  Menu, 
-  X, 
-  ChevronRight, 
-  Mail, 
-  Github, 
-  Linkedin, 
-  Instagram, 
-  Globe,
-  Telescope,
-  Zap,
-  Award
+  FlaskConical, 
+  ArrowRight, 
+  Film, 
+  Mic2, 
+  FolderOpen, 
+  ArrowUpRight, 
+  Shirt, 
+  Youtube, 
+  Share2, 
+  Quote, 
+  Sparkles,
+  Menu,
+  X,
+  Mail,
+  ChevronRight,
+  ShoppingBag,
+  Tag
 } from 'lucide-react';
 
-const PSSWebsite = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const canvasRef = useRef(null);
+const globalStyles = `
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;700;800&display=swap');
+  
+  :root {
+    --bg-main: #09090b; /* Zinc 950 */
+    --bg-card: #18181b; /* Zinc 900 */
+    --accent: #3b82f6;  /* Blue 500 */
+    --text-muted: #a1a1aa; /* Zinc 400 */
+  }
 
-  // Handle scroll for navbar transparency
+  body {
+    font-family: 'Manrope', sans-serif;
+    background-color: var(--bg-main);
+    color: #ffffff;
+    overflow-x: hidden;
+  }
+
+  .text-huge {
+    font-size: clamp(3rem, 12vw, 8rem);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+  }
+
+  /* Consistent Card Styling */
+  .bento-card {
+    background: var(--bg-card);
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .bento-card:hover {
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+    /* Border color is handled via utility classes on individual cards to allow for custom colors */
+  }
+
+  /* Grain Texture */
+  .bg-grain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-scroll {
+    animation: scroll 40s linear infinite;
+  }
+  
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-main); 
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #27272a; 
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3f3f46; 
+  }
+`;
+
+const Nav = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Physics Vector Field Animation (Curl Effect)
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-    let mouseX = 0;
-    let mouseY = 0;
-    
-    // Grid configuration
-    const spacing = 30; // Space between vectors
-    let cols = 0;
-    let rows = 0;
+  return (
+    <nav 
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        scrolled || isOpen ? 'bg-zinc-950/95 backdrop-blur-lg shadow-2xl py-3 md:py-4' : 'bg-transparent py-4 md:py-6'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
+        <a href="/" className="font-bold text-xl tracking-tighter flex items-center gap-4 group text-white z-50 relative">
+	  {/*
+          <img src="public/logo2.png" width="30px" />
+          <img src="public/logo.png" width="30px" />
+	  */}
+	  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-blue-500">
+          <circle cx="12" cy="12" r="3" fill="currentColor"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" stroke="currentColor" strokeWidth="1.5" transform="rotate(45 12 12)"/>
+          <ellipse cx="12" cy="12" rx="10" ry="4" stroke="currentColor" strokeWidth="1.5" transform="rotate(-45 12 12)"/>
+          </svg>
+          PSS
+        </a>
 
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      cols = Math.ceil(canvas.width / spacing);
-      rows = Math.ceil(canvas.height / spacing);
-    };
+        {/* Desktop Links */}
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
+          <a href="#work" className="hover:text-white transition-colors">Initiatives</a>
+          <a href="#gallery" className="hover:text-white transition-colors">Gallery</a>
+          <a href="#merch" className="hover:text-white transition-colors">Merch</a>
+          <a href="#future" className="hover:text-white transition-colors">Future</a>
+        </div>
 
-    // Track mouse
-    const handleMouseMove = (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    };
+        {/* Desktop CTA - Explicitly hidden on mobile */}
+        <div className="hidden md:flex items-center gap-4">
+          <a href="#join" className="flex items-center gap-2 bg-white text-black px-5 py-2 rounded-full text-sm font-bold hover:bg-blue-600 hover:text-white transition-all">
+            Join Society <ChevronRight className="w-4 h-4" />
+          </a>
+        </div>
 
-    window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('mousemove', handleMouseMove);
-    resizeCanvas();
+        {/* Mobile Toggle */}
+        <div className="md:hidden z-50 relative">
+          <button onClick={() => setIsOpen(!isOpen)} className="text-white p-2">
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </div>
 
-    // Field Physics
-    const drawField = () => {
-      // Clear with slight fade for trail effect (optional, strictly clear for crisp lines)
-      ctx.fillStyle = '#000000'; 
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      {/* Mobile Menu Overlay - FIXED: Added invisible and opacity-0 to completely hide it when closed */}
+      <div 
+        className={`fixed inset-0 bg-zinc-950/98 backdrop-blur-xl z-40 transition-all duration-300 md:hidden flex flex-col justify-center items-center gap-8 
+        ${isOpen ? 'translate-y-0 opacity-100 visible pointer-events-auto' : '-translate-y-full opacity-0 invisible pointer-events-none'}`}
+      >
+        <a href="#work" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-blue-500 transition-colors">Initiatives</a>
+        <a href="#gallery" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-blue-500 transition-colors">Gallery</a>
+        <a href="#merch" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-blue-500 transition-colors">Merch</a>
+        <a href="#future" onClick={() => setIsOpen(false)} className="text-2xl font-bold text-white hover:text-blue-500 transition-colors">Future Plans</a>
+        <div className="w-12 h-px bg-white/10 my-4"></div>
+        <a href="#join" onClick={() => setIsOpen(false)} className="flex items-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-bold">
+          Join Society <ChevronRight className="w-5 h-5" />
+        </a>
+      </div>
+    </nav>
+  );
+};
+
+const Hero = () => (
+  <section className="min-h-[90vh] flex flex-col justify-center px-4 md:px-12 relative overflow-hidden pt-24 bg-zinc-950">
+    <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+    <div className="max-w-7xl mx-auto w-full z-10">
+      <div className="flex items-center gap-3 mb-6 md:mb-8">
+        <span className="inline-block py-1 px-3 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] md:text-xs font-bold tracking-widest uppercase">
+          IIT Madras
+        </span>
+        <span className="h-px w-8 bg-blue-500/30"></span>
+        <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase text-zinc-500">Est. 2024</span>
+      </div>
       
-      ctx.strokeStyle = '#22d3ee'; // Cyan-400
-      ctx.lineWidth = 1;
+      <h1 className="text-huge font-extrabold text-white mb-6 md:mb-8 leading-[0.95] tracking-tight">
+        Physics <br />
+        <span className="text-zinc-600">Student Society.</span>
+      </h1>
+      
+      <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10 md:gap-12 mt-8 md:mt-12 border-t border-white/5 pt-10 md:pt-12">
+        <p className="max-w-md text-base md:text-lg text-zinc-400 leading-relaxed">
+          We are the catalyst for curiosity. Curating experiments, lectures, and cultural collisions for the physicists of tomorrow.
+        </p>
+        
+        {/* Stats Grid */}
+        <div className="flex flex-row gap-8 w-full md:w-auto overflow-x-auto pb-2">
+          <div className="flex-shrink-0">
+            <div className="text-2xl md:text-3xl font-bold text-white">50+</div>
+            <div className="text-[10px] md:text-xs text-zinc-500 uppercase tracking-widest mt-1 md:mt-2">Events</div>
+          </div>
+          <div className="w-px h-10 bg-white/10 self-center"></div>
+          <div className="flex-shrink-0">
+            <div className="text-2xl md:text-3xl font-bold text-white">1k+</div>
+            <div className="text-[10px] md:text-xs text-zinc-500 uppercase tracking-widest mt-1 md:mt-2">Community</div>
+          </div>
+          <div className="w-px h-10 bg-white/10 self-center"></div>
+          <div className="flex-shrink-0">
+              <div className="text-2xl md:text-3xl font-bold text-white">∞</div>
+            <div className="text-[10px] md:text-xs text-zinc-500 uppercase tracking-widest mt-1 md:mt-2">Curiosity</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
 
-      for (let x = 0; x < cols; x++) {
-        for (let y = 0; y < rows; y++) {
-          const px = x * spacing;
-          const py = y * spacing;
+const BentoGrid = () => (
+  <section id="work" className="py-16 md:py-24 px-4 md:px-8 bg-zinc-950 relative z-10">
+    <div className="max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 md:mb-16 px-1 md:px-2 gap-4">
+        <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white">Our <span className="text-blue-500">Universe</span></h2>
+        <p className="text-zinc-500 max-w-xs text-left md:text-right text-sm md:text-base">A collection of initiatives we've launched to explore the unknown.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 auto-rows-auto md:auto-rows-[300px]">
+        {/* SpecLab */}
+        <div className="bento-card md:col-span-2 md:row-span-2 p-6 md:p-8 flex flex-col justify-between group bg-zinc-900/50 hover:border-blue-500/30 min-h-[280px]">
+          <div className="w-full h-full absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-50"></div>
+          <div className="w-full h-full absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]"></div>
           
-          // Vector math
-          const dx = mouseX - px;
-          const dy = mouseY - py;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const maxDist = 500; // Influence radius
+          <div className="relative z-10">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-blue-500 mb-6 border border-white/5 group-hover:border-blue-500/50 transition-colors">
+              <FlaskConical className="w-5 h-5 md:w-6 md:h-6" />
+            </div>
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">SpecLab</h3>
+            <p className="text-zinc-400 text-sm md:text-base max-w-sm">Our flagship specialized laboratory initiative. We provide the equipment; you bring the hypothesis.</p>
+          </div>
+          <div className="relative z-10 mt-6 md:mt-8 flex gap-2">
+            <span className="px-3 py-1 bg-zinc-800 rounded-lg text-[10px] md:text-xs text-zinc-300 border border-white/5">Quantum</span>
+            <span className="px-3 py-1 bg-zinc-800 rounded-lg text-[10px] md:text-xs text-zinc-300 border border-white/5">Optics</span>
+          </div>
+        </div>
 
-          // Base angle (default drift)
-          let angle = Math.sin(Date.now() * 0.001 + x * 0.1) * 0.2; 
-          let length = 2; // Base length
-          let alpha = 0.1; // Base opacity
-
-          // Interactive Curl
-          if (distance < maxDist) {
-            // Calculate angle towards mouse
-            const angleToMouse = Math.atan2(dy, dx);
-            
-            // Add 90 degrees (PI/2) to create a CURL / VORTEX around the mouse
-            // Like a magnetic field around a wire
-            const curlAngle = angleToMouse + Math.PI / 2;
-            
-            // Interpolate based on distance (closer = stronger alignment to curl)
-            const influence = 1 - (distance / maxDist);
-            
-            angle = curlAngle;
-            length = 2 + (influence * 15); // Lines get longer near mouse
-            alpha = 0.1 + (influence * 0.5); // Lines get brighter
-          }
-
-          // Draw Vector
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(34, 211, 238, ${alpha})`; // Cyan with dynamic alpha
+        {/* Freshie Nights */}
+        <div className="bento-card md:col-span-2 relative overflow-hidden group bg-zinc-900/50 hover:border-blue-500/30 min-h-[240px]">
+          <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px]"></div>
           
-          // Center the rotation
-          ctx.save();
-          ctx.translate(px, py);
-          ctx.rotate(angle);
-          ctx.moveTo(-length/2, 0);
-          ctx.lineTo(length/2, 0);
-          ctx.stroke();
-          ctx.restore();
-        }
-      }
-      animationFrameId = requestAnimationFrame(drawField);
-    };
+          <div className="relative h-full p-6 md:p-8 flex flex-col justify-center">
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Freshie Nights</h3>
+            <p className="text-zinc-400 text-sm md:text-base mb-6">The initiation. Breaking ice with liquid nitrogen and warm welcomes.</p>
+            <button className="w-fit flex items-center gap-2 text-xs md:text-sm font-bold uppercase tracking-wider text-blue-500 group-hover:text-white transition-colors">
+              See Photos <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
-    drawField();
+        {/* Movie Screening */}
+        <div className="bento-card md:row-span-2 group bg-zinc-900/50 hover:border-blue-500/30 min-h-[220px]">
+          <div className="h-32 md:h-1/2 bg-zinc-950 relative overflow-hidden border-b border-white/5">
+            <div className="absolute inset-0 flex items-center justify-center opacity-20">
+              <Film className="w-16 h-16 md:w-24 md:h-24 text-zinc-500 transform rotate-12" />
+	{/*
+		<img src="public/logo.png" />
+		*/}
+            </div>
+          </div>
+          <div className="p-6 h-auto md:h-1/2 flex flex-col justify-end">
+            <h3 className="text-xl md:text-2xl font-bold text-white">Cinema & Science</h3>
+            <p className="text-sm text-zinc-400 mt-2">Screening Interstellar, Primer, and documentaries followed by debunking sessions.</p>
+          </div>
+        </div>
 
-    return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
+        {/* Lecture Series */}
+        <div className="bento-card p-6 flex flex-col justify-between group hover:bg-zinc-800 transition-colors bg-zinc-900/50 hover:border-blue-500/30 min-h-[200px]">
+          <div className="flex justify-between items-start mb-4">
+            <Mic2 className="w-8 h-8 text-zinc-600 group-hover:text-blue-500 transition-colors" />
+            <span className="text-3xl md:text-4xl font-bold text-zinc-800 group-hover:text-zinc-700">01</span>
+          </div>
+          <div>
+            <h3 className="text-lg md:text-xl font-bold text-white">Lectures</h3>
+            <p className="text-xs text-zinc-500 mt-1 group-hover:text-zinc-400">Industry experts & Alumni</p>
+          </div>
+        </div>
 
-  const navLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'About', href: '#about' },
-    { name: 'Events', href: '#events' },
-    { name: 'Resources', href: '#resources' },
-    { name: 'Team', href: '#team' },
+        {/* Senior Discussions */}
+        <div className="bento-card md:col-span-2 p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between bg-zinc-900/50 hover:border-blue-500/30 gap-4 min-h-[180px]">
+          <div>
+            <h3 className="text-xl md:text-2xl font-bold text-white">Senior Discussions</h3>
+            <p className="text-zinc-400 text-sm mt-1">Guidance on Internships, PhDs, and survival.</p>
+          </div>
+          <div className="flex -space-x-3 md:-space-x-4">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-zinc-800 border-2 border-zinc-900"></div>
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-zinc-700 border-2 border-zinc-900"></div>
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-zinc-600 border-2 border-zinc-900 flex items-center justify-center text-xs font-bold text-white">+20</div>
+          </div>
+        </div>
+
+        {/* Experiments Demo */}
+        <div className="bento-card md:col-span-1 bg-blue-600 p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:bg-blue-500 border-blue-500 min-h-[180px]">
+          <FolderOpen className="w-8 h-8 md:w-10 md:h-10 text-white mb-4" />
+          <h3 className="text-lg font-bold text-white">Demo Archive</h3>
+          <p className="text-blue-100 text-xs mt-2 mb-4">Photos & Videos for external outreach</p>
+          <span className="bg-white text-blue-600 px-4 py-1.5 rounded-full text-xs font-bold">Access Drive</span>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const InfiniteGallery = () => {
+  const items = [
+    { title: "SpecLab Open", width: "w-64" },
+    { title: "Liquid Nitrogen", width: "w-80" },
+    { title: "Freshie Night '23", width: "w-64" },
+    { title: "Open House", width: "w-96" },
+    { title: "Lecture Series", width: "w-64" }
   ];
 
+  const GalleryItem = ({ title, width }) => (
+    <div className={`${width} h-40 md:h-48 bg-zinc-900/80 rounded-2xl flex-shrink-0 relative overflow-hidden group border border-white/5 hover:border-blue-500/30 transition-colors`}>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+      <span className="absolute bottom-4 left-4 text-xs font-bold text-white z-10 uppercase tracking-wider">{title}</span>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-black text-slate-100 font-sans selection:bg-cyan-500 selection:text-white relative">
+    <section id="gallery" className="py-12 border-y border-white/5 bg-zinc-950 overflow-hidden relative z-10">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 mb-8 flex justify-between items-end">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-bold text-white">Life at PSS</h2>
+          <p className="text-zinc-500 text-sm mt-1">From experiments to freshie nights.</p>
+        </div>
+        <a href="#gallery" className="text-blue-500 text-sm font-bold hover:text-white transition-colors flex items-center gap-1">
+          View Full Archive <ArrowRight className="w-4 h-4" />
+        </a>
+      </div>
       
-      {/* Dynamic Physics Background */}
-      <canvas 
-        ref={canvasRef}
-        className="fixed top-0 left-0 w-full h-full pointer-events-none z-0"
-      />
+      <div className="flex animate-scroll w-max gap-4 hover:[animation-play-state:paused]">
+        <div className="flex gap-4">
+          {items.map((item, idx) => (
+            <GalleryItem key={`g1-${idx}`} {...item} />
+          ))}
+        </div>
+        <div className="flex gap-4">
+          {items.map((item, idx) => (
+            <GalleryItem key={`g2-${idx}`} {...item} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
 
-      {/* Content Wrapper - Relative to sit above canvas */}
-      <div className="relative z-10">
+const Newsletter = () => (
+  <section id="newsletter" className="py-16 md:py-24 px-4 md:px-8 max-w-7xl mx-auto bg-zinc-950 relative z-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div className="order-2 md:order-1">
+        <span className="text-blue-500 font-bold tracking-widest uppercase text-xs mb-4 block">Publications</span>
+        <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">The PSS Monthly.</h2>
+        <p className="text-zinc-400 mb-8 leading-relaxed">
+          We don't just do events; we write about them too. From dissecting the latest Nobel Prize to simple physics puzzles, our newsletter keeps the department connected.
+        </p>
+        <div className="flex flex-col gap-4">
+          <div className="p-4 border border-white/10 rounded-xl bg-zinc-900/50 hover:bg-zinc-800 transition-colors cursor-pointer group hover:border-blue-500/30">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs text-blue-400 font-bold">LATEST EDITION • OCT 2024</span>
+              <ArrowUpRight className="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors" />
+            </div>
+            <h4 className="font-bold text-lg text-white">The Quantum Leap: IITM's New Research</h4>
+          </div>
+          <div className="p-4 border border-white/5 rounded-xl bg-transparent hover:bg-white/5 transition-colors cursor-pointer group hover:border-white/20">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-xs text-zinc-500 font-bold">SEPT 2024</span>
+              <ArrowUpRight className="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors" />
+            </div>
+            <h4 className="font-bold text-lg text-white">Freshie Night Highlights & Photo Dump</h4>
+          </div>
+        </div>
+      </div>
+      
+      <div className="order-1 md:order-2 relative h-[320px] md:h-[500px] w-full bg-zinc-900 rounded-2xl border border-white/5 p-4 md:p-6 rotate-2 md:rotate-3 hover:rotate-0 transition-transform duration-500 shadow-2xl shadow-black hover:border-blue-500/30">
+        <div className="w-full h-full bg-white text-zinc-950 p-5 md:p-8 rounded-lg overflow-hidden relative">
+          <div className="flex justify-between border-b-2 border-zinc-950 pb-3 md:pb-4 mb-4 md:mb-6">
+            <h3 className="font-serif text-2xl md:text-3xl font-bold leading-none self-end">PSS Chronicle</h3>
+            <div className="text-right">
+              <p className="text-[10px] md:text-xs font-bold">VOL. 24</p>
+              <p className="text-[8px] md:text-[10px] text-zinc-500 uppercase">IIT MADRAS</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 md:gap-4">
+            <div className="col-span-2 h-24 md:h-40 bg-zinc-200 mb-2 md:mb-4 grayscale flex items-center justify-center text-zinc-400 text-[10px] md:text-xs tracking-wider">[FEATURE IMAGE]</div>
+            <div className="text-[6px] md:text-[10px] leading-tight font-serif text-justify col-span-1 text-zinc-800">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.
+            </div>
+            <div className="text-[6px] md:text-[10px] leading-tight font-serif text-justify col-span-1 text-zinc-800">
+              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.
+            </div>
+          </div>
+          <div className="absolute inset-x-0 bottom-0 h-16 md:h-32 bg-gradient-to-t from-white to-transparent"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
 
-        {/* Navigation */}
-        <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-black/80 backdrop-blur-md border-b border-white/10' : 'bg-transparent'}`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-20">
-              <div className="flex items-center space-x-2">
-                <div className="w-10 h-10 border border-cyan-500/50 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)] bg-black">
-                  <Atom className="text-cyan-400 w-6 h-6 animate-spin-slow" />
-                </div>
-                <div>
-                  <span className="text-xl font-bold tracking-wider text-white">Physics Student Society</span>
-                  <span className="block text-xs text-cyan-500 font-mono tracking-widest">IIT MADRAS</span>
-                </div>
+const MerchDrop = () => (
+  <section id="merch" className="py-16 md:py-24 border-t border-white/5 bg-zinc-950 relative z-10">
+    <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+        
+        {/* Visual Side */}
+        <div className="w-full md:w-1/2 relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+          {/* Reduced height for mobile optimization */}
+          <div className="relative h-[320px] md:h-[500px] w-full bg-zinc-900 rounded-2xl border border-white/10 flex items-center justify-center overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/20 to-transparent"></div>
+            
+            {/* T-Shirt Visual */}
+            <div className="relative transform group-hover:scale-105 transition-transform duration-500">
+              <Shirt className="w-40 h-40 md:w-64 md:h-64 text-zinc-800 fill-zinc-900 drop-shadow-2xl" strokeWidth={1} />
+              {/* Graphic on Shirt - Generic Logo Placeholder */}
+              <div className="absolute top-[28%] left-1/2 -translate-x-1/2 w-20 h-20 md:w-24 md:h-24 flex flex-col items-center justify-center opacity-80">
+                 <div className="w-10 h-10 md:w-12 md:h-12 border border-blue-500/30 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-500/20 rounded-full"></div>
+                 </div>
               </div>
-              
-              {/* Desktop Nav */}
-              <div className="hidden md:block">
-                <div className="ml-10 flex items-baseline space-x-8">
-                  {navLinks.map((link) => (
-                    <a
-                      key={link.name}
-                      href={link.href}
-                      className="hover:text-cyan-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 relative group"
-                    >
-                      {link.name}
-                      <span className="absolute bottom-0 left-0 w-full h-px bg-cyan-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                    </a>
-                  ))}
-                  <button className="bg-cyan-950/30 hover:bg-cyan-900/50 border border-cyan-500/50 text-cyan-400 px-4 py-2 rounded-full text-sm font-medium transition-all shadow-[0_0_10px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-                    Join PSS
-                  </button>
-                </div>
-              </div>
+            </div>
 
-              {/* Mobile menu button */}
-              <div className="md:hidden">
-                <button
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-white/10 focus:outline-none"
-                >
-                  {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {/* Floating Tags */}
+            <div className="absolute top-4 right-4 md:top-6 md:right-6 bg-zinc-800 border border-zinc-700 text-white text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+              OFFICIAL GEAR
+            </div>
+          </div>
+        </div>
+
+        {/* Details Side */}
+        <div className="w-full md:w-1/2 md:pl-8">
+          <div className="flex items-center gap-2 mb-4 text-blue-500 font-bold tracking-widest text-xs uppercase">
+            <Tag className="w-4 h-4" />
+            PSS Collection
+          </div>
+          <h2 className="text-3xl md:text-6xl font-bold text-white mb-4 md:mb-6 leading-tight">
+            Wear Your <br/><span className="text-zinc-600">Passion.</span>
+          </h2>
+          <p className="text-base md:text-lg text-zinc-400 mb-6 md:mb-8 leading-relaxed">
+            Exclusive apparel designed by the Physics Student Society. High-quality prints featuring iconic physics concepts, department inside jokes, and minimalist aesthetics.
+          </p>
+          
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="flex items-center gap-3 text-sm text-zinc-300">
+              <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 text-xs">✓</div>
+              Premium Cotton
+            </div>
+            <div className="flex items-center gap-3 text-sm text-zinc-300">
+              <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 text-xs">✓</div>
+              Unisex Fit
+            </div>
+            <div className="flex items-center gap-3 text-sm text-zinc-300">
+              <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 text-xs">✓</div>
+              Student Pricing
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6">
+            <button className="w-full sm:w-auto bg-white text-black px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-3">
+              <ShoppingBag className="w-5 h-5" />
+              View Collection
+            </button>
+            <span className="text-sm font-bold text-zinc-500 text-center sm:text-left w-full sm:w-auto">
+              New drops every semester
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+);
+
+const FuturePlans = () => (
+  <section id="future" className="py-16 md:py-24 border-t border-white/5 bg-zinc-950 relative z-10">
+    <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
+        <span className="text-blue-500 font-bold tracking-widest uppercase text-xs mb-4 block">Roadmap</span>
+        <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white">Next on the Horizon</h2>
+        <p className="text-zinc-400 text-sm md:text-base">We are expanding our reach beyond the campus.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        {[
+          { icon: Shirt, title: "Official Merch", desc: "Our first drop is now live! Check out the Maxwell Edition above. More designs coming Winter 2024.", color: "group-hover:text-blue-500", border: "hover:border-blue-500/50" },
+          { icon: Youtube, title: "YouTube Content", desc: "High-quality concept explainers, lab tours, and interviews with IITM faculty.", color: "group-hover:text-red-500", border: "hover:border-red-500/50" },
+          { icon: Share2, title: "Inter-IIT Collabs", desc: "Expanding the network. Joint hackathons and meetups with physics societies across India.", color: "group-hover:text-purple-500", border: "hover:border-purple-500/50" }
+        ].map((item, idx) => (
+          <div key={idx} className={`bento-card p-1 group bg-zinc-900/50 ${item.border}`}>
+            <div className="h-40 md:h-48 bg-zinc-900 rounded-[1.2rem] mb-4 overflow-hidden relative">
+               <div className="absolute inset-0 flex items-center justify-center">
+                  <item.icon className={`w-12 h-12 md:w-16 md:h-16 text-zinc-700 ${item.color} transition-colors duration-500`} />
+              </div>
+            </div>
+            <div className="px-6 pb-8">
+              <h4 className="text-lg md:text-xl font-bold text-white mb-2">{item.title}</h4>
+              <p className="text-xs md:text-sm text-zinc-400">{item.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const Philosophy = () => (
+  <section className="py-24 md:py-32 bg-zinc-950 relative overflow-hidden flex flex-col items-center justify-center text-center px-4 z-10">
+    <div className="relative z-10 max-w-4xl">
+      <Sparkles className="w-6 h-6 text-blue-500 mx-auto mb-6 opacity-80" />
+      <h2 className="text-3xl md:text-5xl font-medium text-white leading-tight tracking-tight mb-6">
+        "Somewhere, something incredible is waiting to be known."
+      </h2>
+      <cite className="text-sm font-bold tracking-widest uppercase text-zinc-500 not-italic">
+        — Carl Sagan
+      </cite>
+    </div>
+  </section>
+);
+
+const Footer = () => (
+  <footer className="bg-zinc-950 border-t border-white/5 pt-12 md:pt-16 pb-8 relative z-10">
+    <div className="max-w-7xl mx-auto px-4 md:px-8">
+      
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12 md:mb-16">
+        <div className="md:col-span-5 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                  <ellipse cx="12" cy="12" rx="10" ry="4" stroke="currentColor" strokeWidth="1.5" transform="rotate(45 12 12)"/>
+                  <ellipse cx="12" cy="12" rx="10" ry="4" stroke="currentColor" strokeWidth="1.5" transform="rotate(-45 12 12)"/>
+                </svg>
+              </div>
+              <span className="font-bold text-xl tracking-tight text-white">PSS IIT Madras</span>
+            </div>
+            <p className="text-zinc-500 text-sm leading-relaxed mb-6 max-w-sm">
+              The official student body of the Department of Physics. We bridge the gap between classroom theory and real-world application.
+            </p>
+            
+            <div className="max-w-xs">
+              <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 block">Join our Mailing List</label>
+              <div className="flex gap-2">
+                <div className="relative flex-grow">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                  <input 
+                    type="email" 
+                    placeholder="smail id preferred" 
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-zinc-600"
+                  />
+                </div>
+                <button className="bg-white text-black font-bold p-2.5 rounded-lg hover:bg-blue-500 hover:text-white transition-colors">
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Mobile Nav */}
-          {isMenuOpen && (
-            <div className="md:hidden bg-black/95 backdrop-blur-xl border-b border-white/10">
-              <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.name}
-                    href={link.href}
-                    className="text-slate-300 hover:text-cyan-400 block px-3 py-2 rounded-md text-base font-medium"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {link.name}
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-        </nav>
+        <div className="md:col-span-2 md:col-start-7">
+          <h4 className="text-white font-bold mb-4 md:mb-6">Sitemap</h4>
+          <ul className="space-y-3 text-sm text-zinc-500">
+            <li><a href="#home" className="hover:text-blue-400 transition-colors">Home</a></li>
+            <li><a href="#work" className="hover:text-blue-400 transition-colors">Initiatives</a></li>
+            <li><a href="#gallery" className="hover:text-blue-400 transition-colors">Gallery</a></li>
+            <li><a href="#future" className="hover:text-blue-400 transition-colors">Future Plans</a></li>
+            <li><a href="#join" className="hover:text-blue-400 transition-colors">Join Us</a></li>
+          </ul>
+        </div>
 
-        {/* Hero Section */}
-        <section id="home" className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden min-h-screen flex items-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center w-full">
-            <div className="inline-flex items-center px-4 py-2 rounded-full border border-white/10 bg-black/50 backdrop-blur-md mb-8 animate-fade-in-up">
-              <span className="w-2 h-2 rounded-full bg-cyan-500 mr-2 shadow-[0_0_10px_rgba(6,182,212,0.8)] animate-pulse"></span>
-              <span className="text-sm text-slate-300 font-mono tracking-wide">Department of Physics, IIT Madras</span>
-            </div>
-            
-            <h1 className="text-5xl md:text-8xl font-black tracking-tighter mb-8 text-white drop-shadow-2xl">
-              LAWS OF <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 animate-gradient-x">REALITY</span>
-            </h1>
-            
-            <p className="mt-4 max-w-2xl mx-auto text-xl text-slate-400 mb-10 font-light leading-relaxed">
-              Where curiosity meets the cosmos. Join the community at <span className="text-cyan-400 font-semibold">IIT Madras</span> exploring everything from quantum realms to galactic clusters.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <button className="group relative px-8 py-4 bg-transparent overflow-hidden rounded-none border border-cyan-500 text-cyan-400 font-bold transition-all hover:text-black">
-                <div className="absolute inset-0 w-0 bg-cyan-500 transition-all duration-[250ms] ease-out group-hover:w-full"></div>
-                <span className="relative flex items-center ">Explore Events <ChevronRight className="ml-2 w-5 h-5" /></span>
-              </button>
-              <button className="px-8 py-4 bg-transparent border border-white/20 text-slate-300 hover:bg-white/5 hover:border-white/40 transition-all font-medium">
-                View Research
-              </button>
-            </div>
-          </div>
-        </section>
+        <div className="md:col-span-2">
+          <h4 className="text-white font-bold mb-4 md:mb-6">Resources</h4>
+          <ul className="space-y-3 text-sm text-zinc-500">
+            <li><a href="https://physics.iitm.ac.in/" className="hover:text-blue-400 transition-colors">Dept. Website</a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors">Faculty Directory</a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors">Student Portal</a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors">Constitution</a></li>
+          </ul>
+        </div>
 
-        {/* About / Stats Section */}
-        <section id="about" className="py-20 bg-black/80 backdrop-blur-sm border-y border-white/10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-              <div className="p-8 rounded-none border border-white/10 bg-black hover:border-cyan-500/50 transition-colors group">
-                <Users className="w-12 h-12 text-cyan-500 mx-auto mb-6 group-hover:scale-110 transition-transform duration-500" />
-                <h3 className="text-4xl font-bold text-white mb-2 tracking-tight">500+</h3>
-                <p className="text-slate-500 uppercase tracking-widest text-xs">Active Members</p>
-              </div>
-              <div className="p-8 rounded-none border border-white/10 bg-black hover:border-purple-500/50 transition-colors group">
-                <Calendar className="w-12 h-12 text-purple-500 mx-auto mb-6 group-hover:scale-110 transition-transform duration-500" />
-                <h3 className="text-4xl font-bold text-white mb-2 tracking-tight">50+</h3>
-                <p className="text-slate-500 uppercase tracking-widest text-xs">Annual Events</p>
-              </div>
-              <div className="p-8 rounded-none border border-white/10 bg-black hover:border-blue-500/50 transition-colors group">
-                <BookOpen className="w-12 h-12 text-blue-500 mx-auto mb-6 group-hover:scale-110 transition-transform duration-500" />
-                <h3 className="text-4xl font-bold text-white mb-2 tracking-tight">20+</h3>
-                <p className="text-slate-500 uppercase tracking-widest text-xs">Research Groups</p>
-              </div>
-            </div>
-          </div>
-        </section>
+        <div className="md:col-span-2">
+          <h4 className="text-white font-bold mb-4 md:mb-6">Connect</h4>
+          <ul className="space-y-3 text-sm text-zinc-500">
+            <li><a href="#" className="hover:text-blue-400 transition-colors flex items-center gap-2">Instagram <ArrowUpRight className="w-3 h-3" /></a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors flex items-center gap-2">LinkedIn <ArrowUpRight className="w-3 h-3" /></a></li>
+            <li><a href="#" className="hover:text-blue-400 transition-colors flex items-center gap-2">YouTube <ArrowUpRight className="w-3 h-3" /></a></li>
+            <li><a href="mailto:contact@pss-iitm.org" className="hover:text-blue-400 transition-colors">Email Us</a></li>
+          </ul>
+        </div>
+      </div>
 
-        {/* Events Section */}
-        <section id="events" className="py-24 relative bg-gradient-to-b from-black via-slate-950 to-black">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">Activities</h2>
-              <div className="w-24 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent mx-auto"></div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Card 1 */}
-              <div className="bg-black/40 backdrop-blur-md rounded-none border border-white/10 hover:border-cyan-500/50 transition-all group hover:-translate-y-2 duration-300">
-                <div className="h-48 bg-black relative overflow-hidden flex items-center justify-center border-b border-white/5">
-                   {/* Abstract Grid Background inside card */}
-                   <div className="absolute inset-0 opacity-20 bg-[linear-gradient(rgba(34,211,238,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.1)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
-                   <div className="text-center relative z-10">
-                      <Zap className="w-12 h-12 text-cyan-400 mx-auto mb-2 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
-                      <h3 className="text-xl font-bold text-white tracking-widest">HORIZON</h3>
-                   </div>
-                </div>
-                <div className="p-8">
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">The Physics Fest</h3>
-                  <p className="text-slate-400 text-sm mb-6 leading-relaxed">The flagship annual physics festival of IIT Madras. Guest lectures, workshops, quiz competitions, and paper presentations.</p>
-                  <a href="#" className="text-cyan-400 text-xs font-bold uppercase tracking-widest hover:text-cyan-300 flex items-center group-hover:underline">Explore <ChevronRight className="w-4 h-4 ml-1" /></a>
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="bg-black/40 backdrop-blur-md rounded-none border border-white/10 hover:border-purple-500/50 transition-all group hover:-translate-y-2 duration-300">
-                <div className="h-48 bg-black relative overflow-hidden flex items-center justify-center border-b border-white/5">
-                  <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/40 via-transparent to-transparent"></div>
-                   <div className="text-center relative z-10">
-                      <Telescope className="w-12 h-12 text-purple-400 mx-auto mb-2 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
-                      <h3 className="text-xl font-bold text-white tracking-widest">ASTRO</h3>
-                   </div>
-                </div>
-                <div className="p-8">
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-purple-400 transition-colors">Star Gazing</h3>
-                  <p className="text-slate-400 text-sm mb-6 leading-relaxed">Regular observation sessions using the institute telescopes. Exploring nebulas, planets, and constellations.</p>
-                  <a href="#" className="text-purple-400 text-xs font-bold uppercase tracking-widest hover:text-purple-300 flex items-center group-hover:underline">Schedule <ChevronRight className="w-4 h-4 ml-1" /></a>
-                </div>
-              </div>
-
-              {/* Card 3 */}
-              <div className="bg-black/40 backdrop-blur-md rounded-none border border-white/10 hover:border-green-500/50 transition-all group hover:-translate-y-2 duration-300">
-                <div className="h-48 bg-black relative overflow-hidden flex items-center justify-center border-b border-white/5">
-                   <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(74,222,128,0.1)_10px,rgba(74,222,128,0.1)_20px)]"></div>
-                   <div className="text-center relative z-10">
-                      <Atom className="w-12 h-12 text-green-400 mx-auto mb-2 drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
-                      <h3 className="text-xl font-bold text-white tracking-widest">CIRCLE</h3>
-                   </div>
-                </div>
-                <div className="p-8">
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors">Physics Circle</h3>
-                  <p className="text-slate-400 text-sm mb-6 leading-relaxed">Weekly informal discussions on topics ranging from Quantum Mechanics to General Relativity. Open to all.</p>
-                  <a href="#" className="text-green-400 text-xs font-bold uppercase tracking-widest hover:text-green-300 flex items-center group-hover:underline">Join Discord <ChevronRight className="w-4 h-4 ml-1" /></a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Resources Section */}
-        <section id="resources" className="py-20 border-y border-white/10 bg-black/90">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-             <div className="grid md:grid-cols-2 gap-16 items-start">
-                <div>
-                  <h2 className="text-3xl md:text-5xl font-bold text-white mb-8 tracking-tight">Resources</h2>
-                  <p className="text-slate-400 mb-10 text-lg font-light">
-                    Curated materials to help you navigate your physics journey at IIT Madras, from course selection to summer internships.
-                  </p>
-                  
-                  <div className="space-y-6">
-                     <div className="flex items-center group cursor-pointer">
-                        <div className="w-12 h-12 border border-white/20 flex items-center justify-center mr-6 group-hover:border-cyan-500 transition-colors">
-                          <BookOpen className="text-cyan-400 w-5 h-5" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-white text-lg group-hover:text-cyan-400 transition-colors">Course Wiki</h4>
-                          <p className="text-sm text-slate-500">Reviews and notes for core physics courses.</p>
-                        </div>
-                     </div>
-                     <div className="flex items-center group cursor-pointer">
-                        <div className="w-12 h-12 border border-white/20 flex items-center justify-center mr-6 group-hover:border-cyan-500 transition-colors">
-                          <Globe className="text-cyan-400 w-5 h-5" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-white text-lg group-hover:text-cyan-400 transition-colors">Internship Portal</h4>
-                          <p className="text-sm text-slate-500">Database of past summer research projects.</p>
-                        </div>
-                     </div>
-                     <div className="flex items-center group cursor-pointer">
-                        <div className="w-12 h-12 border border-white/20 flex items-center justify-center mr-6 group-hover:border-cyan-500 transition-colors">
-                          <Award className="text-cyan-400 w-5 h-5" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-white text-lg group-hover:text-cyan-400 transition-colors">PhD Guide</h4>
-                          <p className="text-sm text-slate-500">Resources for GRE, Apps, and funding.</p>
-                        </div>
-                     </div>
-                  </div>
-                </div>
-                
-                <div className="bg-slate-900/30 backdrop-blur-sm p-8 border border-white/10 relative">
-                   <div className="absolute top-0 right-0 w-20 h-20 bg-cyan-500/10 blur-3xl rounded-full"></div>
-                   <h3 className="text-lg font-bold text-white mb-6 uppercase tracking-widest flex items-center">
-                     <span className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></span>
-                     Notice Board
-                   </h3>
-                   <ul className="space-y-6">
-                      <li className="group cursor-pointer">
-                         <div className="flex justify-between items-start mb-1">
-                           <span className="text-slate-300 font-medium group-hover:text-cyan-400 transition-colors">Summer School '24 Applications</span>
-                           <span className="text-xs text-slate-600 font-mono border border-slate-800 px-2 py-1">OCT 24</span>
-                         </div>
-                         <p className="text-xs text-slate-500">Deadline approaching for early bird registration.</p>
-                      </li>
-                      <li className="group cursor-pointer border-t border-white/5 pt-4">
-                         <div className="flex justify-between items-start mb-1">
-                           <span className="text-slate-300 font-medium group-hover:text-cyan-400 transition-colors">Guest Lecture: Dr. David Tong</span>
-                           <span className="text-xs text-slate-600 font-mono border border-slate-800 px-2 py-1">NOV 02</span>
-                         </div>
-                         <p className="text-xs text-slate-500">Topic: Quantum Field Theory. Venue: CLT.</p>
-                      </li>
-                      <li className="group cursor-pointer border-t border-white/5 pt-4">
-                         <div className="flex justify-between items-start mb-1">
-                           <span className="text-slate-300 font-medium group-hover:text-cyan-400 transition-colors">PSS Magazine Submissions</span>
-                           <span className="text-xs text-slate-600 font-mono border border-slate-800 px-2 py-1">NOV 10</span>
-                         </div>
-                         <p className="text-xs text-slate-500">Send your articles to pss@smail.iitm.ac.in</p>
-                      </li>
-                   </ul>
-                   <button className="w-full mt-8 py-3 border border-white/10 hover:bg-white/5 text-slate-400 hover:text-white text-xs uppercase tracking-widest transition-all">
-                      View All Notices
-                   </button>
-                </div>
-             </div>
-          </div>
-        </section>
-
-        {/* Team Section */}
-        <section id="team" className="py-24 bg-black">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">Core Team</h2>
-              <p className="text-slate-500">The people behind the society.</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-               {[
-                 { name: "Subhadeep Nayak", role: "President" },
-                 { name: "Pritam Kumar Behera", role: "President" },
-                 { name: "David Raj", role: "Events Head" },
-                 { name: "Priya M.", role: "Web Admin" }
-               ].map((member, index) => (
-                 <div key={index} className="group relative bg-slate-900/20 border border-white/5 hover:border-cyan-500/50 transition-all duration-300">
-                    <div className="aspect-square bg-slate-900 relative overflow-hidden flex items-center justify-center">
-                       <Users className="w-20 h-20 text-slate-700 group-hover:text-cyan-500/50 transition-colors" />
-                       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
-                       
-                       {/* Social overlay */}
-                       <div className="absolute bottom-0 left-0 w-full p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex justify-center space-x-4">
-                          <Mail className="w-5 h-5 text-white cursor-pointer hover:text-cyan-400" />
-                          <Linkedin className="w-5 h-5 text-white cursor-pointer hover:text-cyan-400" />
-                       </div>
-                    </div>
-                    <div className="p-4 border-t border-white/5">
-                       <h3 className="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors">{member.name}</h3>
-                       <p className="text-slate-500 text-xs uppercase tracking-wider">{member.role}</p>
-                    </div>
-                 </div>
-               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="bg-black border-t border-white/10 py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-               <div className="mb-6 md:mb-0">
-                  <div className="flex items-center space-x-2 mb-2">
-                     <Atom className="text-cyan-500 w-6 h-6" />
-                     <span className="text-xl font-bold text-white tracking-widest">PSS IITM</span>
-                  </div>
-                  <p className="text-slate-600 text-xs uppercase tracking-wide">Department of Physics, IIT Madras<br/>Chennai, Tamil Nadu 600036</p>
-               </div>
-               
-               <div className="flex space-x-8">
-                  <a href="#" className="text-slate-500 hover:text-cyan-400 transition-colors"><Mail className="w-5 h-5" /></a>
-                  <a href="#" className="text-slate-500 hover:text-cyan-400 transition-colors"><Github className="w-5 h-5" /></a>
-                  <a href="#" className="text-slate-500 hover:text-cyan-400 transition-colors"><Instagram className="w-5 h-5" /></a>
-               </div>
-            </div>
-            <div className="mt-8 text-center text-slate-800 text-xs tracking-wider">
-               &copy; 2024 PHYSICS STUDENT SOCIETY, IIT MADRAS.
-            </div>
-          </div>
-        </footer>
+      <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p className="text-zinc-600 text-xs text-center md:text-left">
+          &copy; 2024 Physics Student Society, IIT Madras.
+        </p>
+        <div className="flex gap-6 text-xs text-zinc-600 font-medium">
+          <a href="#" className="hover:text-zinc-400 transition-colors">Privacy Policy</a>
+          <a href="#" className="hover:text-zinc-400 transition-colors">Terms of Use</a>
+          <a href="#" className="hover:text-zinc-400 transition-colors">Cookies</a>
+        </div>
       </div>
     </div>
-  );
-};
+  </footer>
+);
 
-export default PSSWebsite;
+export default function App() {
+  return (
+    <>
+      <style>{globalStyles}</style>
+      <div className="bg-grain"></div>
+      <div className="relative z-10">
+        <Nav />
+        <div id="home">
+          <Hero />
+        </div>
+        <BentoGrid />
+        <InfiniteGallery />
+        <Newsletter />
+        <MerchDrop />
+        <FuturePlans />
+        <Philosophy />
+        <Footer />
+      </div>
+    </>
+  );
+}
